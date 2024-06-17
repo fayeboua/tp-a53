@@ -18,14 +18,14 @@ def main():
     print_header()
     #code = input('Indiquer votre code postal pour avoir la météo (H4N1L4)? ')
     code="H1kXC"
-    html = get_html_from_url("https://meteo.gc.ca/city/pages/qc-147_metric_f.html" )
-    print('------ Html content ------')
+    #html = get_html_from_url("https://meteo.gc.ca/city/pages/qc-147_metric_f.html" )
+    #print('------ Html content ------')
     #print(html)
-    report = get_meteo_from_html(html)
+    #report = get_meteo_from_html(html)
 
-    print('Condition météo: {} \n Location:{} \n Temperature:{}'.format(
-        report.prevision ,report.location, report.temperature
-    ))
+    #print('Condition météo: {} \n Location:{} \n Temperature:{}'.format(
+    #    report.prevision ,report.location, report.temperature
+    #))
     #Insertion BD mongo
 
     # Appel de la fonction pour obtenir la valeur de l'action de compagnies du NASDAQ
@@ -75,24 +75,32 @@ def get_stock_price(compagnie, symbole):
 
         # Trouver l'élément contenant le nom de la compagnie
         company_name=''
-        company_name_element = soup.find('div', class_='ZvmM7')
+        company_name_element = soup.find('div', class_='zzDege')
         if company_name_element:
             # Extraire le texte contenant le nom de la compagnie
-            company_name = company_name_element.text.strip()
+            company_name = company_name_element.text
         else:
             print("Impossible de récupérer le nom de la compagnie.")
 
+        # Trouver l'élément contenant un commentaire sur l'action de la compagnie
+        comment = ''
+        comment_element = soup.find('div', class_='F2KAFc')
+        if comment_element:
+            # Extraire le texte contenant le commentaire sur la compagnie
+            comment = comment_element.text
+
         #return stock_price, current_time, day range
-        print('->Compagnie:',company_name)
+        print('Compagnie:',company_name)
         print("Prix de l'action:",stock_price)
         print('Date:',current_time)
+        print('Commentaire:', comment)
 
         # Trouver l'élément contenant le PREVIOUS CLOSE
         prev_close_element = soup.find('div', class_='P6K39c')
         if prev_close_element:
             # Extraire le texte contenant le PREVIOUS CLOSE
             prev_close_text = prev_close_element.text.strip()
-            print('PREV CLOSE', prev_close_text)
+            print('PREV CLOSE:', prev_close_text)
         else:
             print("Impossible de récupérer le PREVIOUS CLOSE.")
         # Trouver l'élément contenant le AVG VOLUME
@@ -100,13 +108,14 @@ def get_stock_price(compagnie, symbole):
         if avg_volume_element:
             # Extraire le texte contenant le AVG VOLUME
             avg_volume_text = avg_volume_element.text.strip()
-            print('AVG Volume', avg_volume_text)
+            print('AVG Volume:', avg_volume_text)
         else:
             print("Impossible de récupérer le AVG VOLUME.")
 
     else:
         return "Erreur lors de la requête GET.", None
 
+    print("="*80)
 def print_header():
     print('---------------------------------')
     print('           METEO TOTO')
