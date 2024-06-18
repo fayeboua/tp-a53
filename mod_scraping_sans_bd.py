@@ -52,9 +52,21 @@ def get_stock_price(compagnie, symbole):
         # Analyser le contenu HTML avec BeautifulSoup
         soup = BeautifulSoup(response.text, "html.parser")
 
+        # Extraire le texte de la balise <title>
+        title_text = soup.title.text
+
+        # Extraire le symbole NASDAQ du contenu de la balise <title>
+        title = title_text.split()
+        symbol=''
+        for index in range(0,len(title),1):
+            # Vérifier si l'élément contient le symbole NASDAQ, exple: "(TSLA)"
+            if 'Stock' == title[index]:
+                symbol = title[index-1].strip('()')  # Enlever les parenthèses autour du symbole si nécessaire
+                break  # Arrêter la boucle dès que le symbole est trouvé
+        print('Symbole:', symbol)
+
         # Trouver l'élément contenant la valeur de l'action
         price_element = soup.find("div", class_="YMlKec fxKbKc")
-
         stock_price=''
         # Extraire la valeur de l'action
         if price_element:
