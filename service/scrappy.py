@@ -1,4 +1,5 @@
 import requests
+import yfinance as yf
 from bs4 import BeautifulSoup
 from collections import namedtuple
 
@@ -11,6 +12,17 @@ compagnies = ['Microsoft Corp', 'Apple Inc', 'Amazon.Com Inc', 'Meta Platforms I
 
 
 def job():
+    # Remplacez 'AAPL' par le symbole boursier de l'action que vous souhaitez récupérer
+    ticker_symbol = 'AAPL'
+
+    # Récupération des données historiques
+    ticker_data = yf.Ticker(ticker_symbol)
+
+    # Récupération des données historiques sur une période spécifique (par exemple, 1 an)
+    historical_data = ticker_data.history(period='1y')
+
+    print('Données Apple:', historical_data)
+
     # Appel de la fonction pour obtenir la valeur de l'action de compagnies du NASDAQ
     print('\n')
     print('=' * 50)
@@ -130,6 +142,7 @@ def get_price(soup):
         stock_price = price_element.text.strip()
     else:
         stock_price = "Impossible de trouver la valeur de l'action."
+    #stock_price = stock_price.strip('$')
     print("Prix de l'action:", stock_price)
     return stock_price
 

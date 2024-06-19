@@ -19,16 +19,15 @@ def get_curseur(conn):
 
 
 def create_table():
-
     cde_ddl = '''create table if not exists STOCK (
     id integer primary key autoincrement,
     symbol text,
     company text,
-    price float,
+    price text,
     date text,
     comment text,
-    prev_close float,
-    avg_volume float)
+    prev_close text,
+    avg_volume text)
     '''
     conn = get_connexion()
     curseur = get_curseur(conn)
