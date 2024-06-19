@@ -2,7 +2,7 @@ name: Schedule Python Script
 
 on:
   schedule:
-    - cron: '0/5 * * * *'  # This cron syntax schedules the job to run every hour
+    - cron: '0/1 * * * *'  # This cron syntax schedules the job to run every hour
 
 jobs:
   build:
