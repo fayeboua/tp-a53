@@ -19,9 +19,8 @@ def get_curseur(conn):
 
 
 def create_table():
-    cde_drop = "drop table if exists STOCK"
 
-    cde_ddl = '''create table STOCK (
+    cde_ddl = '''create table if not exists STOCK (
     id integer primary key autoincrement,
     symbol text,
     company text,
@@ -33,7 +32,6 @@ def create_table():
     '''
     conn = get_connexion()
     curseur = get_curseur(conn)
-    curseur.execute(cde_drop)
     curseur.execute(cde_ddl)
     fermer_connexion(conn)
 
