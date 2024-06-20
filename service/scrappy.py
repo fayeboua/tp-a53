@@ -20,7 +20,7 @@ def job():
 
     # Récupération des données historiques sur une période spécifique (par exemple, 1 an)
     historical_data = ticker_data.history(period='1y')
-
+    print(historical_data.to_json())
     print('Données Apple:', historical_data['Open'])
 
     # Appel de la fonction pour obtenir la valeur de l'action de compagnies du NASDAQ
