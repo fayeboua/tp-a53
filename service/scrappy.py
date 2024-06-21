@@ -1,5 +1,6 @@
 import requests
 import yfinance as yf
+import json
 from bs4 import BeautifulSoup
 from collections import namedtuple
 
@@ -12,30 +13,60 @@ compagnies = ['Microsoft Corp', 'Apple Inc', 'Amazon.Com Inc', 'Meta Platforms I
 
 
 def job():
-    # Remplacez 'AAPL' par le symbole boursier de l'action que vous souhaitez récupérer
-    ticker_symbol = 'AAPL'
-
-    # Récupération des données historiques
-    ticker_data = yf.Ticker(ticker_symbol)
-
-    # Récupération des données historiques sur une période spécifique (par exemple, 1 an)
-    historical_data = ticker_data.history(period='1y')
-
-    print('Données Apple:', historical_data['Open'])
-
-    # Appel de la fonction pour obtenir la valeur de l'action de compagnies du NASDAQ
-    print('\n')
-    print('=' * 50)
     print('Actions compagnies du NASDAQ')
     print('=' * 50, '\n')
-    stocks = Stocks()
 
+    stocks = Stocks()
     for index in range(0, len(symboles), 1):
         symbol = symboles[index]
-        stocks.add(get_stock(symbol))
+        get_stocks_yahoo(symbol, stocks)
 
     create(stocks)
 
+def get_stocks_yahoo(symbol, stocks):
+    # Symbole boursier de l'action à récupérer
+    ticker_symbol = symbol
+
+    # Récupération des données historiques
+    ticker_data = yf.Ticker(ticker_symbol)
+    ticker_data_info = ticker_data.info
+    company_name = ticker_data_info['longName']
+    company_symbol = ticker_data_info['symbol']
+    print(ticker_data_info)
+    print(company_name)
+    print(company_symbol)
+    # Récupération des données historiques sur une période spécifique (par exemple, 1 an=1y, 1mois = 1mo)
+    historical_data = ticker_data.history(period='6mo')
+
+    # Conversion du DataFrame en Json
+    json_data = historical_data.to_json(orient='records')
+    print('JSON: ', json_data)
+
+    # Charger le JSON en tant qu'objet Python
+    data = json.loads(json_data)
+
+    # Récupérer la date (sans l'heure) du DataFrame correspondant
+    # Convertir l'index en datetime et extraire uniquement la date
+    historical_data.index = historical_data.index.date
+
+    print('Données Stock ', company_name, ':')
+    print("{:15s} {:15s} {:15s} {:15s} {:15s} {:15s}".format('Date', 'Open', 'High', 'Low', 'Close', 'Volume'))
+    for index in range(0, len(data), 1):
+        stock_date = historical_data.index[index]
+        stock_open = data[index]['Open']
+        stock_high = data[index]['High']
+        stock_low = data[index]['Low']
+        stock_close = data[index]['Close']
+        stock_volume = data[index]['Volume']
+
+        print(stock_date, ' ',
+              "{:15.10f} {:15.10f} {:15.10f} {:15.10f} {:10d}".format(stock_open, stock_high,
+                                                                      stock_low, stock_close,
+                                                                      stock_volume))
+        stocks.add(Stock(symbol=company_symbol, company=company_name, close_quote=stock_close, date=stock_date,
+                      open_quote=stock_open, low_quote=stock_low, high_quote=stock_high, avg_volume=stock_volume))
+    print('\n')
+    print("=" * 80)
 
 def get_stock(symbol):
 
@@ -158,5 +189,16 @@ def get_symbol(soup):
         if 'Stock' == title[index]:
             symbol = title[index - 1].strip('()')  # Enlever les parenthèses autour du symbole si nécessaire
             break  # Arrêter la boucle dès que le symbole est trouvé
+    print('Symbole:', symbol)
+    return symbol
+
+def get_symbol_yahoo(soup):
+    # Trouver l'élément contenant la valeur du symbole
+    symbol_element = soup.find("div", class_="stx-panel-title chart-title")
+    symbol = ''
+    # Extraire la valeur du symbole
+    if symbol_element:
+        symbol = symbol_element.text.strip()
+    # stock_price = stock_price.strip('$')
     print('Symbole:', symbol)
     return symbol

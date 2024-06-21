@@ -23,10 +23,11 @@ def create_table():
     id integer primary key autoincrement,
     symbol text,
     company text,
-    price text,
     date text,
-    comment text,
-    prev_close text,
+    quote text,
+    open text,
+    low text,
+    high text,
     avg_volume text)
     '''
     conn = get_connexion()
@@ -36,24 +37,22 @@ def create_table():
 
 
 def create(stock: Stock):
-    cde_ins = 'insert into STOCK(symbol, company, price, date, comment, prev_close, avg_volume) values (?,?,?,?,?,?,?)'
+    cde_ins = 'insert into STOCK(symbol, company, date, quote, open, low, high, avg_volume) values (?,?,?,?,?,?,?,?)'
     conn = get_connexion()
     curseur = get_curseur(conn)
-    curseur.execute(cde_ins, [stock.symbol, stock.company, stock.price, stock.date, stock.comment, stock.prev_close,
-                              stock.avg_volume])
+    curseur.execute(cde_ins, [stock.symbol, stock.company, stock.date, stock.close_quote, stock.open_quote, stock.low_quote, stock.high_quote, stock.avg_volume])
     conn.commit()
     fermer_connexion(conn)
 
 
 def create(stocks: Stocks):
     create_table()
-    cde_ins = 'insert into STOCK(symbol, company, price, date, comment, prev_close, avg_volume) values (?,?,?,?,?,?,?)'
+    cde_ins = 'insert into STOCK(symbol, company, date, quote, open, low, high, avg_volume) values (?,?,?,?,?,?,?,?)'
     conn = get_connexion()
     curseur = get_curseur(conn)
 
     for stock in stocks.listing:
-        curseur.execute(cde_ins, [stock.symbol, stock.company, stock.price, stock.date, stock.comment, stock.prev_close,
-                                  stock.avg_volume])
+        curseur.execute(cde_ins, [stock.symbol, stock.company, stock.date, stock.close_quote, stock.open_quote, stock.low_quote, stock.high_quote, stock.avg_volume])
     conn.commit()
     fermer_connexion(conn)
 
