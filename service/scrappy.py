@@ -1,9 +1,8 @@
 import requests
 import yfinance as yf
 import json
+import csv
 from bs4 import BeautifulSoup
-from collections import namedtuple
-
 from dao.dao import create
 from model.mod_classes import Stock, Stocks
 
@@ -17,13 +16,33 @@ def job():
     print('=' * 50, '\n')
 
     stocks = Stocks()
-    for index in range(0, len(symboles), 1):
-        symbol = symboles[index]
-        get_stocks_yahoo(symbol, stocks)
+    for symbole in symboles:
+        get_stocks_from_yahoo_finance(symbole, stocks)
 
     create(stocks)
 
-def get_stocks_yahoo(symbol, stocks):
+    # Conversion en JSON
+    json_stream = stocks.convert_to_json()
+    # Affichage du JSON résultant
+    print('stocks to JSON:')
+    print(json_stream)
+
+    # Écrire le stream JSON dans un fichier
+    jsonfile = './data/stocks.json'
+    with open(jsonfile, 'w') as fout:
+        json.dump(json_stream, fout, indent=3)
+
+    # Écrire le stream JSON dans un fichier csv
+    csv_headers = ['symbol', 'company', 'date', 'quote', 'open', 'low', 'high', 'avg_volume']
+    csvfile = './data/stocks.csv'
+    with open(csvfile, 'w',  newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=csv_headers)
+        # Write headers
+        writer.writeheader()
+        # Write data rows
+        for item in json_stream:
+            writer.writerow(item)
+def get_stocks_from_yahoo_finance(symbol, stocks):
     # Symbole boursier de l'action à récupérer
     ticker_symbol = symbol
 
@@ -35,9 +54,10 @@ def get_stocks_yahoo(symbol, stocks):
     print(ticker_data_info)
     print(company_name)
     print(company_symbol)
-    # Récupération des données historiques sur une période spécifique (par exemple, 1 an=1y, 1mois = 1mo)
-    historical_data = ticker_data.history(period='6mo')
 
+    # Récupération des données historiques sur une période spécifique (par exemple, 1 an=1y, 1mois = 1mo, 1jour=1d)
+    # Syntaxe valide: ['1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max']
+    historical_data = ticker_data.history(period='6mo')
     # Conversion du DataFrame en Json
     json_data = historical_data.to_json(orient='records')
     print('JSON: ', json_data)

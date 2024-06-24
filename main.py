@@ -10,6 +10,6 @@ if __name__ == '__main__':
     while index < 2:
         job()
         #schedule.run_pending()
-        time.sleep(1)
+        #time.sleep(1)
         print ("Enregistrement:", index)
         index += 1

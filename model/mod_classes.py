@@ -31,3 +31,19 @@ class Stocks:
         print("=" * 50)
         size = len(self.listing)
         print("Le nombre de données chargées est :", size)
+    def convert_to_json(self):
+        dictionaire = []
+        for stock in self.listing:
+            # Création d'un dictionnaire à partir des résultats de la liste stock
+            row_dict = {
+                'symbol': stock.symbol,
+                'company': stock.company,
+                'date': str(stock.date),
+                'quote': stock.close_quote,
+                'open': stock.open_quote,
+                'low': stock.low_quote,
+                'high': stock.high_quote,
+                'avg_volume': stock.avg_volume
+            }
+            dictionaire.append(row_dict)
+        return dictionaire
