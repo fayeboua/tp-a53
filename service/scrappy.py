@@ -6,31 +6,35 @@ from bs4 import BeautifulSoup
 from dao.dao import create
 from model.mod_classes import Stock, Stocks
 
-symboles = ['MSFT', 'AAPL', 'AMZN', 'META', 'AVGO', 'GOOGL', 'GOOG', 'COST', 'TSLA', 'NFLX']
+symboles_nasdaq = ['MSFT', 'AAPL', 'AMZN', 'META', 'AVGO', 'GOOGL', 'GOOG', 'COST', 'TSLA', 'NFLX']
 compagnies = ['Microsoft Corp', 'Apple Inc', 'Amazon.Com Inc', 'Meta Platforms Inc', 'Broadcom Inc', 'Alphabet Inc',
               'Alphabet Inc', 'Costco Wholesale Corp', 'Tesla Inc', 'Netflix Inc']
 
 
-def job():
+def runScraping():
     print('Actions compagnies du NASDAQ')
     print('=' * 50, '\n')
 
+    # create stocks
     stocks = Stocks()
-    for symbole in symboles:
+    for symbole in symboles_nasdaq:
         get_stocks_from_yahoo_finance(symbole, stocks)
-
-    create(stocks)
 
     # Conversion en JSON
     json_stream = stocks.convert_to_json()
     # Affichage du JSON résultant
-    print('stocks to JSON:')
-    print(json_stream)
+    #print('stocks to JSON:')
+    #print(json_stream)
 
     # Écrire le stream JSON dans un fichier
     jsonfile = './data/stocks.json'
     with open(jsonfile, 'w') as fout:
         json.dump(json_stream, fout, indent=3)
+
+    with open(jsonfile, 'r') as fin:
+        json_data = json.load(fin)
+    print('stocks from JSON:')
+    print(json_data)
 
     # Écrire le stream JSON dans un fichier csv
     csv_headers = ['symbol', 'company', 'date', 'quote', 'open', 'low', 'high', 'avg_volume']
@@ -88,7 +92,7 @@ def get_stocks_from_yahoo_finance(symbol, stocks):
     print('\n')
     print("=" * 80)
 
-def get_stock(symbol):
+def get_stocks_from_google_finance(symbol, stocks):
 
     # URL de la page Google Finance pour la compagnie dont le symbole NASDAQ est spécifié
     url = 'https://www.google.com/finance/quote/' + symbol + ':' + 'NASDAQ'
@@ -101,22 +105,22 @@ def get_stock(symbol):
         # Analyser le contenu HTML avec BeautifulSoup
         soup = BeautifulSoup(response.text, "html.parser")
 
-        symbol = get_symbol(soup)
-        price = get_price(soup)
-        date = get_date(soup)
-        company = get_company(soup)
+        company_symbol = get_symbol(soup)
+        quote = get_price(soup)
+        stock_date = get_date(soup)
+        company_name = get_company(soup)
         comment = get_comment(soup)
         prev_close = get_prev_close(soup)
         avg_volume = get_avg_volume(soup)
 
-        stock = Stock(symbol=symbol, company=company, price=price, date=date, comment=comment,
-                      prev_close=prev_close, avg_volume=avg_volume)
+        # stock = Stock(symbol=symbol, company=company, price=price, date=date, comment=comment, prev_close=prev_close, avg_volume=avg_volume)
+        stocks.add(Stock(symbol=company_symbol, company=company_name, close_quote=quote, date=stock_date,
+                         open_quote= prev_close, low_quote=quote, high_quote=quote, avg_volume=avg_volume))
         print("=" * 80)
-        return stock
 
     else:
         print("=" * 80)
-        return "Erreur lors de la requête GET.", None
+        print("Erreur lors de la requête GET.")
 
 
 
